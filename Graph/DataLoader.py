@@ -111,7 +111,6 @@ class RegressionDataLoader(DataLoader):
     def rescale_labels(self, center, scale):
         """
         Update the scaled_lable for each graph in graphList.
-        Then return mean and sd of the original labels for reference
         """
         for g in self.graphList:
             g.scaled_label = (g.label - center)/scale    
