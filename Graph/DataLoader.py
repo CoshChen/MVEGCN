@@ -203,8 +203,8 @@ class RegressionDataLoader(DataLoader):
 class BinaryDataLoader(DataLoader):
     def __init__(self):
         super().__init__()
-        self.positive = 0
-        self.negative = 0
+        self.positiveInd = []
+        self.negativeInd = []
         return
     
     
@@ -212,14 +212,33 @@ class BinaryDataLoader(DataLoader):
         self.__init__()
         super().load_csv(file, col_1, col_2)
         
-        for g in self.graphList:
-            if g.label == 1.0: self.positive += 1
-            else: self.negative += 1
+        for i in range(len(self.graphList)):
+            if self.graphList[i].label == 1.0: self.positiveInd.append(i)
+            else: self.negativeInd.append(i)
             
-        print("Number of Positive Samples: " + str(self.positive))
-        print("Number of Negative Samples: " + str(self.negative))
+        print("Number of Positive Samples: " + str(len(self.positiveInd)))
+        print("Number of Negative Samples: " + str(len(self.negativeInd)))
         
         return self.maxNodes, self.graphList[0].nodeFeatureDim, self.graphList[0].edgeFeatureDim
+    
+    
+    def get_trainTestGraph_balance(self, portion = 0.9):
+        if not self.split:
+            posTrainSize = int(portion*len(self.positiveInd))
+            negTrainSize = int(portion*len(self.negativeInd))
+            random.shuffle(self.positiveInd)
+            random.shuffle(self.negativeInd)
+            
+            self.trainInd = self.positiveInd[:posTrainSize] + self.negativeInd[:negTrainSize]
+            self.testInd = self.positiveInd[posTrainSize:] + self.negativeInd[negTrainSize:]
+            
+            self.split = True
+            
+        trainGraph = [self.graphList[i] for i in self.trainInd]
+        testGraph = [self.graphList[i] for i in self.testInd]
+        
+        return trainGraph, testGraph
+         
     
     
     def export_data(self, file):
@@ -252,8 +271,8 @@ class BinaryDataLoader(DataLoader):
                 graph.label = float(row['Label'])
                 self.graphList.append(graph)
                 
-                if graph.label == 1.0: self.positive += 1
-                else: self.negative += 1
+                if graph.label == 1.0: self.positiveInd.append(int(row['Index']))
+                else: self.negativeInd.append(int(row['Index']))
                 
                 if graph.nodeNum > self.maxNodes:
                     self.maxNodes = graph.nodeNum
@@ -266,8 +285,8 @@ class BinaryDataLoader(DataLoader):
         print("Node Number: " + str(self.maxNodes))
         print("Node Feature Dimension: " + str(self.graphList[0].nodeFeatureDim))
         print("Edge Feature Dimension: " + str(self.graphList[0].edgeFeatureDim))
-        print("Number of Positive Samples: " + str(self.positive))
-        print("Number of Negative Samples: " + str(self.negative))
+        print("Number of Positive Samples: " + str(len(self.positiveInd)))
+        print("Number of Negative Samples: " + str(len(self.negativeInd)))
                 
         return super().get_trainTestGraph(), self.maxNodes, self.graphList[0].nodeFeatureDim, self.graphList[0].edgeFeatureDim 
         

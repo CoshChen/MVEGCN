@@ -31,13 +31,14 @@ class Graph():
     
     def getIdPlusAdjMatrix(self, maxNodes):
         matrix = np.zeros([maxNodes, maxNodes])
+        matrix.fill(-0.5) # offset
         for edge in self.edges:
             (i,j) = edge.ends
             matrix[i,j] = 1.0
             matrix[j,i] = 1.0
             
         for i in range(maxNodes):
-            matrix[i,i] += 1.0
+            matrix[i,i] = 1.0
             
         return matrix
         
@@ -189,6 +190,16 @@ def getBondFeatures(bond):
     features.append(bond.GetIsConjugated())
     # boolean: is part of ring
     features.append(bond.IsInRing())
+    
+    # bond begin atom (onehot 11 dim)
+    features += oneHotVector((bond.GetBeginAtom().GetAtomicNum()), 
+                             [5, 6, 7, 8, 9, 15, 16, 17, 35, 53, 999])
+    
+    # bond end atom (onehot 11 dim)
+    features += oneHotVector((bond.GetBeginAtom().GetAtomicNum()), 
+                             [5, 6, 7, 8, 9, 15, 16, 17, 35, 53, 999])
+    
+    
     return np.array(features)
 
 
