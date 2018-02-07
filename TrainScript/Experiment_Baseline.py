@@ -23,7 +23,7 @@ config.gpu_options.allow_growth = True
 sess = tf.InteractiveSession(config=config)
 
 filePath = '../data/BradleyDoublePlusGoodMeltingPointDataset.csv'
-out_file_dir = '../Output/Experiment_7/Round_1'
+out_file_dir = '../Output/Baseline/Round_1'
 check_point_file = out_file_dir + '/BD_trained.ckpt'
 min_check_point_file = out_file_dir + '/BD_min.ckpt'
 check_point_file_to_load = check_point_file
